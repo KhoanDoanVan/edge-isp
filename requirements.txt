@@ -1,0 +1,62 @@
+# ============================================================
+# Edge Mobile AI — ISP Pipeline
+# requirements.txt
+# Python >= 3.10
+# ============================================================
+
+# ── Core runtime ─────────────────────────────────────────────
+numpy>=1.26
+scipy>=1.12
+opencv-python>=4.9
+Pillow>=10.3
+pyyaml>=6.0
+loguru>=0.7
+tqdm>=4.66
+pydantic>=2.6
+rich>=13.7
+typer>=0.12
+
+# ── Deep learning (training + export) ────────────────────────
+torch>=2.2
+torchvision>=0.17
+onnx>=1.16
+onnxruntime>=1.17          # CPU inference (cross-platform)
+onnxsim>=0.4.36            # ONNX graph simplifier (constant folding)
+
+# ── Model export targets ─────────────────────────────────────
+coremltools>=7.2           # Apple CoreML / Neural Engine export
+onnx2tf>=1.26              # ONNX → TFLite conversion
+tensorflow>=2.16           # Required by onnx2tf
+
+# ── Image quality metrics ────────────────────────────────────
+scikit-image>=0.23         # SSIM (skimage.metrics.structural_similarity)
+
+# ── Dev / testing ────────────────────────────────────────────
+pytest>=8
+pytest-cov>=5
+ruff>=0.4
+mypy>=1.9
+pre-commit>=3.7
+
+# ── Benchmarking & visualisation ────────────────────────────
+tensorboard>=2.16
+matplotlib>=3.8
+seaborn>=0.13
+
+# ============================================================
+# Platform-specific (install manually based on target device)
+# ============================================================
+
+# Android / Qualcomm NPU:
+#   pip install onnxruntime-qnn          # Hexagon HTP (Snapdragon 8xx)
+#   pip install onnxruntime-android      # NNAPI delegation
+
+# Apple Silicon / iOS:
+#   (coremltools above handles export; ANE runs automatically at inference)
+
+# NCNN (ARM Vulkan / mobile GPU):
+#   Build from source: https://github.com/Tencent/ncnn
+#   pip install ncnn  (unofficial wheel)
+
+# HiAI (Huawei Kirin NPU):
+#   pip install onnxruntime-hisilicon    # HiAI Foundation EP
