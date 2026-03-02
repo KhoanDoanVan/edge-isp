@@ -1,2 +1,4 @@
 
 .ispedgeenv
+
+*.DS_Store
