@@ -13,7 +13,23 @@ class LensShadingConfig(StageConfig):
     fallback_order: int = 4 # polynomial order for synthetic flat-field
 
 
+'''
+sửa hiện tượng vignetting (rìa ảnh tối hơn trung tâm).
 
+Do:
+Hình học thấu kính
+Góc tới của ánh sáng
+Che khuất cơ học
+Microlens inefficiency
+→ Pixel ở rìa nhận ít photon hơn.
+Kết quả:
+Trung tâm sáng
+Viền tối
+
+Nếu WB sửa “màu ánh sáng”,
+CCM sửa “màu camera”,
+thì LSC sửa “độ sáng theo vị trí”.
+'''
 class LensShadingCorrectionStage(ISPStage):
     """Multiply by a gain map to compensate lens vignetting."""
 

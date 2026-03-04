@@ -32,7 +32,7 @@ class BlackLevelConfig(StageConfig):
     white_level: float = 1023.0
     normalize: bool = True
 
-
+# Hiệu chỉnh mức độ đen
 class BlackLevelCorrectionStage(ISPStage):
     """Subtract sensor black level, optionally normalise to [0, 1]."""
 
@@ -56,30 +56,56 @@ class BlackLevelCorrectionStage(ISPStage):
         )
 
 
-    def process(self, image: np.ndarray, metadata: dict[str, Any]) -> StageResult:
+    def process(
+            self, 
+            image: np.ndarray, # raw image data (likely from a camera sensor)
+            metadata: dict[str, Any]
+    ) -> StageResult:
 
         cfg: BlackLevelConfig = self.config # type: ignore[assignment]
+
+        # Raw images are often uint8, uint10, uint12, uint16 -> convert to float32
         img = image.astype(np.float32)
 
+        # Black level = sensor bias (offset added by the camera even when no light hits the sensor).
         bl = cfg.black_level
-
+        
+        # Two cases: scalar vs per-channel black level
         if isinstance(bl, (list, tuple)):
+            # per-channel (Bayer) black level
+            # - creates a 2D map matching the Bayer pattern
+            # This is sensor-accurate black level correction
             bl_map = self._build_bayer_map(bl, image.shape[:2])
             img -= bl_map
         else:
+            # scalar black level
+            # Meaning:
+            # - Same black offset for every pixel
+            # - Typical for grayscale or simplified pipelines
             img -= float(bl)
 
         # Clamp negatives to 0
+        # because:
+        # - After black subtraction, dark pixels may become negative
+        # - Physically meaningless (negative light)
         np.clip(img, 0, None, out=img)
 
+        # Optional normalization to [0, 1]
         if cfg.normalize:
+            # white_level = maximum valid sensor value (e.g. 1023, 4095, 16383)
+            # Dynamic range = white − black
             scale = cfg.white_level - (float(bl) if not isinstance(bl, (list, tuple)) else min(bl))
+            # Avoid divide-by-zero
             img /= max(scale, 1.0)
+            # Clamp to valid range
             np.clip(img, 0.0, 1.0, out=img)
 
         metadata["black_level_applied"] = bl
         metadata["white_level"] = cfg.white_level
 
+        # new image with:
+        # - black level substracted
+        # - optionally normalized to [0,1]
         return StageResult(image=img, metadata=metadata)
 
 

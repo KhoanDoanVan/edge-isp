@@ -11,7 +11,26 @@ from ..stage_base import ISPStage, StageConfig, StageResult
 class BadPixelConfig(StageConfig):
     threshold: float = 0.1   # relative deviation from neighbourhood median
 
+'''
+Bản chất vật lý
+Sensor CMOS/CCD không bao giờ cho ra giá trị 0 tuyệt đối khi không có ánh sáng.
+Nó luôn có:
+Dark current
+Read noise
+ADC bias offset
+Nên pixel tối nhất có thể là 64, 256, 1024… tùy sensor.
 
+Nếu không trừ black level:
+→ toàn bộ ảnh bị nâng nền lên
+→ dynamic range bị sai
+
+Black Level Correction:
+Khôi phục đúng dynamic range vật lý
+Làm shadow không bị xám
+Là tiền đề cho white balance chính xác
+Nếu làm sai bước này:
+→ toàn bộ pipeline sau đó sai theo.
+'''
 class BadPixelCorrectionStage(ISPStage):
     """Detect and replace hot/dead pixels via median neighbourhood."""
 

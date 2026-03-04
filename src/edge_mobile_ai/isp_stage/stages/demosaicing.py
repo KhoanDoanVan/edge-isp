@@ -59,7 +59,34 @@ _BAYER_CODE: dict[str, dict[str, int]] = {
     },
 }
 
+'''
+Nó là bước quan trọng nhất trong toàn bộ ISP vì nó biến dữ liệu cảm biến thô thành ảnh màu thực sự.
+Chuyển ảnh RAW Bayer 1 kênh thành ảnh RGB 3 kênh bằng nội suy màu.
 
+Sensor camera không chụp ảnh RGB đầy đủ.
+Nó chụp qua Bayer CFA (Color Filter Array):
+R  G
+G  B
+Mỗi pixel chỉ đo 1 màu duy nhất.
+Ví dụ pixel tại (0,0) chỉ có R.
+Pixel bên cạnh chỉ có G.
+Không có pixel nào có đủ R,G,B.
+→ Demosaic là bước nội suy 2 màu còn thiếu cho mỗi pixel.
+
+Nếu không demosaic:
+Ảnh nhìn như mosaic lưới đỏ-xanh
+Không thể white balance
+Không thể color correct
+Không thể hiển thị
+
+Nó quyết định:
+Độ sắc nét thật
+False color artifact
+Moiré
+Texture fidelity
+Nếu demosaic tệ:
+→ Sharpen hay NR phía sau cũng không cứu được.
+'''
 class DemosaicStage(ISPStage):
     """Convert Bayer RAW → full-colour RGB."""
 
